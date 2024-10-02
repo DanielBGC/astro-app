@@ -13,7 +13,6 @@ import * as Sentry from '@sentry/react-native';
 import { ApodScreen } from '@screens/Apod/Apod';
 import { HomeScreen } from '@screens/Home/Home';
 import { RoversScreen } from '@screens/Rovers/Rovers';
-import { GalaxiesScreen } from '@screens/Galaxies/Galaxies';
 
 import { Colors } from '@consts/consts';
 import { useGlobalStore } from '@store/store';
@@ -32,15 +31,15 @@ const CustomDrawerContent = ({ navigation }: any) => {
   return (
     <View style={styles.drawerContainer}>
       <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate('Home')}>
+        <MaterialIcons name="home" size={24} color={Colors.white} />
         <Text style={styles.drawerText}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate('Apod')}>
+        <MaterialIcons name="photo-camera" size={24} color={Colors.white} />
         <Text style={styles.drawerText}>Astronomy Picture Of the Day</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate('Galaxies')}>
-        <Text style={styles.drawerText}>Galaxies</Text>
-      </TouchableOpacity>
       <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate('Rovers')}>
+        <MaterialIcons name="precision-manufacturing" size={24} color={Colors.white} />
         <Text style={styles.drawerText}>Rovers</Text>
       </TouchableOpacity>
     </View>
@@ -73,7 +72,6 @@ const AppNavigator = () => {
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Home" component={HomeScreen} options={screenOptions} />
       <Drawer.Screen name="Apod" component={ApodScreen} options={screenOptions} />
-      <Drawer.Screen name="Galaxies" component={GalaxiesScreen} options={screenOptions} />
       <Drawer.Screen name="Rovers" component={RoversScreen} options={screenOptions} />
     </Drawer.Navigator>
   );
@@ -102,6 +100,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.darkGray,
   },
   drawerButton: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
     marginVertical: 15,
     padding: 15,
     backgroundColor: Colors.purple,
@@ -110,5 +111,8 @@ const styles = StyleSheet.create({
   drawerText: {
     fontSize: 18,
     color: '#fff',
+    flexWrap: 'wrap',
+    width: '100%',
+    flex: 1,
   },
 });

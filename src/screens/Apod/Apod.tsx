@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Button } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useQuery } from 'react-query';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
@@ -19,6 +19,13 @@ const fetchAPOD = async (date: string): Promise<ApodDataInterface> => {
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
+
+  const rateLimitLimit = response.headers.get('x-ratelimit-limit');
+  const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+
+  console.log(`x-ratelimit-limit: ${rateLimitLimit}`);
+  console.log(`x-ratelimit-remaining: ${rateLimitRemaining}`);
+
   return response.json();
 };
 
@@ -28,7 +35,6 @@ export const ApodScreen = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dateString, setDateString] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [isVideo, setIsVideo] = useState(false);
 
   const { data, error, isLoading } = useQuery<ApodDataInterface, Error>(['apod', dateString], () =>
     fetchAPOD(dateString),
@@ -37,8 +43,6 @@ export const ApodScreen = () => {
   React.useEffect(() => {
     if (data) {
       console.log({ data });
-      const verifyVideo = data.url.includes('youtube');
-      setIsVideo(verifyVideo);
     }
   }, [data]);
 
@@ -48,9 +52,21 @@ export const ApodScreen = () => {
     setGlobalLoading(isLoading);
   }, [isLoading]);
 
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert(error.toString());
+    }
+  }, [error]);
+
   const handleDateChange = (event: DateTimePickerEvent, date: Date | undefined) => {
     setShowDatePicker(false);
+
     if (date) {
+      if (date > new Date()) {
+        Alert.alert('Cannot select a date greater than the current date');
+        return false;
+      }
+
       setSelectedDate(date);
       setDateString(format(date, 'yyyy-MM-dd'));
     }
@@ -62,10 +78,24 @@ export const ApodScreen = () => {
 
   return (
     <CustomSafeAreaView style={styles.screenContainer}>
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10, marginBottom: 10 }}>
         <View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
-            <Button title="Select Date" onPress={openDatePicker} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 10,
+              gap: 10,
+            }}
+          >
+            <Text style={{ marginBottom: 10, color: Colors.white, fontSize: 16, flex: 2 }}>
+              Change the date to fetch images from other days.
+            </Text>
+            <TouchableOpacity style={styles.dateButton} onPress={openDatePicker}>
+              <Text style={{ color: Colors.white, fontSize: 16, fontWeight: 700 }}>
+                Select Date
+              </Text>
+            </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
                 value={selectedDate}
@@ -76,31 +106,41 @@ export const ApodScreen = () => {
             )}
           </View>
 
-          <View style={{ gap: 10 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingBottom: 10,
+              marginBottom: 20,
+              borderBottomWidth: 1,
+              borderColor: Colors.white,
+            }}
+          >
+            <Text style={styles.labelValue}>Selected Date: </Text>
+            <Text style={styles.textValue}>{format(selectedDate, 'dd/MM/yyyy')}</Text>
+          </View>
+
+          <View style={{ gap: 4 }}>
             <Text style={styles.title}>{data?.title}</Text>
             <View>
-              <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Explanation: </Text>
-              <Text style={{ fontSize: 16 }}>{data?.explanation}</Text>
+              <Text style={styles.labelValue}>Explanation: </Text>
+              <Text style={styles.textValue}>{data?.explanation}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Date: </Text>
-              <Text style={{ fontSize: 16 }}>{data?.date}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Copyright: </Text>
-              <Text style={{ fontSize: 16 }}>
+              <Text style={styles.labelValue}>Copyright: </Text>
+              <Text style={styles.textValue}>
                 {data?.copyright ? data.copyright?.trim() : 'No Copyrights'}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Media Type: </Text>
-              <Text style={{ fontSize: 16 }}>{data?.media_type}</Text>
+              <Text style={styles.labelValue}>Media Type: </Text>
+              <Text style={styles.textValue}>{data?.media_type}</Text>
             </View>
           </View>
 
           {data?.media_type === 'video' ? (
-            <Text style={{ fontSize: 16, marginTop: 10 }}>
-              Video format not yet supported. Please wait for new updates.{' '}
+            <Text style={{ fontSize: 16, marginTop: 10, color: Colors.white }}>
+              Video format not yet supported. Please wait for new updates.
             </Text>
           ) : (
             <View
@@ -124,16 +164,42 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     padding: 8,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.darkGray,
+  },
+  dateButton: {
+    backgroundColor: Colors.purple,
+    flex: 1,
+    paddingHorizontal: 4,
+    paddingVertical: 6,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: Colors.white,
+    textShadowColor: Colors.purple,
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 5,
+    textAlign: 'center',
+  },
+  labelValue: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: Colors.white,
+    textShadowColor: Colors.purple,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
+  },
+  textValue: {
+    fontSize: 16,
+    color: Colors.white,
+    textAlign: 'justify',
   },
   image: {
     width: '100%',
     height: 300,
-    // marginVertical: 10,
   },
   video: {
     alignSelf: 'center',
