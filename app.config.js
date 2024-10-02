@@ -39,5 +39,6 @@ export default ({ config }) => ({
     sentryOrg: process.env.SENTRY_ORG,
     sentryProject: process.env.SENTRY_PROJECT,
     sentryDsn: process.env.SENTRY_DSN,
+    nasaApiKey: process.env.NASA_API_KEY,
   },
 });

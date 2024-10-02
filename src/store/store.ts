@@ -1,9 +1,15 @@
 import { create } from 'zustand';
 
-export const useGlobalStore = create((set) => ({
+interface IGlobalStore {
+  globalLoading: boolean;
+
+  setGlobalLoading: (isLoading: boolean) => void;
+}
+
+export const useGlobalStore = create<IGlobalStore>((set) => ({
   // Definindo os estados globais
-  user: null,
+  globalLoading: false,
 
   // Funções para modificar os estados globais
-  setUser: (user: any) => set({ user: user }),
+  setGlobalLoading: (isLoading) => set({ globalLoading: isLoading }),
 }));
