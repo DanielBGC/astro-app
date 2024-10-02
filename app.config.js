@@ -5,6 +5,7 @@ export default ({ config }) => ({
   name: 'astro-app',
   slug: 'astro-app',
   version: '1.0.0',
+  owner: 'danielbgc',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
@@ -17,6 +18,7 @@ export default ({ config }) => ({
     supportsTablet: true,
   },
   android: {
+    package: 'android.danielbgc.astroapp',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
@@ -36,6 +38,9 @@ export default ({ config }) => ({
     ],
   ],
   extra: {
+    eas: {
+      projectId: '59c62513-57e1-47c9-8ab6-1d9a38b0655f',
+    },
     sentryOrg: process.env.SENTRY_ORG,
     sentryProject: process.env.SENTRY_PROJECT,
     sentryDsn: process.env.SENTRY_DSN,

@@ -9,6 +9,14 @@
       "@components/*": ["src/components/*"],
       "@consts/*": ["src/consts/*"],
       "@assets/*": ["assets/*"]
-    }
-  }
+    },
+    "jsx": "react-native", // Adiciona suporte adequado para JSX no React Native
+    "moduleResolution": "node", // Garante que os módulos sejam resolvidos corretamente
+    "skipLibCheck": true, // Ignora verificações de tipos em bibliotecas para melhorar o tempo de compilação
+    "esModuleInterop": true, // Habilita interoperabilidade com CommonJS
+    "allowSyntheticDefaultImports": true, // Permite importações padrão mesmo que não haja um default export
+    "forceConsistentCasingInFileNames": true, // Garante que nomes de arquivos sejam consistentes em termos de capitalização
+    "isolatedModules": true // Requer que cada arquivo seja tratado como um módulo isolado
+  },
+  "exclude": ["node_modules"] // Exclui a pasta node_modules
 }
